@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import MD3Badge from "../components/ui/MD3Badge";
 import MD3Button from "../components/ui/MD3Button";
 import MD3Card from "../components/ui/MD3Card";
+import { resolveProductImage } from "../data/productImageManifest";
 import { buildForecastBand, buildLinePath, getValueDomain, getYCoordinate } from "../utils/chart";
 import { timeAgo } from "../utils/formatters";
 
@@ -52,6 +53,7 @@ export default function AlertsView() {
 
   const mergedSeries = [...forecast.history, ...forecast.forecast];
   const domain = getValueDomain([mergedSeries]);
+  const forecastImage = resolveProductImage(forecast.product);
   const thresholdLine =
     mergedSeries.length > 0
       ? Math.max(...mergedSeries.map((point) => point.upper_bound ?? point.value)) - 0.1
@@ -93,9 +95,17 @@ export default function AlertsView() {
                 ].join(" ")}
               >
                 <div className="mb-2 flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <MD3Badge color={alert.level === "高" ? "error" : "primary"}>{alert.level}风险</MD3Badge>
-                    <span className="font-bold text-[#1C1B1F]">{alert.product}</span>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={resolveProductImage(alert.product).src}
+                      alt={resolveProductImage(alert.product).alt}
+                      className="h-12 w-12 rounded-2xl object-cover shadow-sm"
+                      loading="lazy"
+                    />
+                    <div className="flex items-center gap-2">
+                      <MD3Badge color={alert.level === "高" ? "error" : "primary"}>{alert.level}风险</MD3Badge>
+                      <span className="font-bold text-[#1C1B1F]">{alert.product}</span>
+                    </div>
                   </div>
                   <span className="text-xs text-[#49454F]">{timeAgo(alert.created_at)}</span>
                 </div>
@@ -113,13 +123,21 @@ export default function AlertsView() {
 
         <MD3Card className="flex flex-col xl:col-span-2">
           <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h2 className="text-xl font-medium text-[#1C1B1F]">
-                {forecast.product}价格 {days} 天预测模型
-              </h2>
-              <p className="mt-1 text-sm text-[#49454F]">
-                算法模型: {forecast.model_name || "趋势预测基线模型"} (MAPE: {forecast.mape}%, RMSE: {forecast.rmse})
-              </p>
+            <div className="flex items-center gap-4">
+              <img
+                src={forecastImage.src}
+                alt={forecastImage.alt}
+                className="h-16 w-16 rounded-[20px] object-cover shadow-sm"
+                loading="lazy"
+              />
+              <div>
+                <h2 className="text-xl font-medium text-[#1C1B1F]">
+                  {forecast.product}价格 {days} 天预测模型
+                </h2>
+                <p className="mt-1 text-sm text-[#49454F]">
+                  算法模型: {forecast.model_name || "趋势预测基线模型"} (MAPE: {forecast.mape}%, RMSE: {forecast.rmse})
+                </p>
+              </div>
             </div>
             <div className="flex gap-3 rounded-full bg-[var(--md-surface-container-low)] p-1">
               {forecastDaysOptions.map((option) => (
@@ -202,6 +220,16 @@ export default function AlertsView() {
             <div>
               <p className="font-medium text-[#1C1B1F]">AI 结论与建议</p>
               <p className="text-sm text-[#49454F]">{forecast.insight || "预测结果加载中..."}</p>
+              {forecastImage.sourcePage ? (
+                <a
+                  href={forecastImage.sourcePage}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-block text-xs text-[var(--md-primary)] hover:underline"
+                >
+                  查看图片来源
+                </a>
+              ) : null}
             </div>
           </div>
         </MD3Card>

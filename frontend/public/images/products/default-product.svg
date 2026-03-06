@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-labelledby="title desc">
+  <title id="title">默认农产品图片</title>
+  <desc id="desc">当未找到对应农产品图片时使用的默认占位图。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EADDFF" />
+      <stop offset="100%" stop-color="#E8DEF8" />
+    </linearGradient>
+  </defs>
+  <rect width="320" height="240" rx="32" fill="url(#bg)" />
+  <g fill="none" stroke="#6750A4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M88 150c0-30 24-54 54-54h36c30 0 54 24 54 54" stroke-width="10" />
+    <path d="M110 150v18c0 18 14 32 32 32h36c18 0 32-14 32-32v-18" stroke-width="10" />
+    <path d="M142 94c0-14 8-27 20-34" stroke-width="8" />
+    <circle cx="160" cy="122" r="10" fill="#6750A4" stroke="none" />
+  </g>
+  <text x="160" y="214" text-anchor="middle" font-size="18" font-family="Arial, sans-serif" fill="#21005D">Product Image</text>
+</svg>

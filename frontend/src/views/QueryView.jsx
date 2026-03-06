@@ -6,6 +6,7 @@ import MD3Badge from "../components/ui/MD3Badge";
 import MD3Button from "../components/ui/MD3Button";
 import MD3Card from "../components/ui/MD3Card";
 import MD3Input from "../components/ui/MD3Input";
+import { resolveProductImage } from "../data/productImageManifest";
 import { formatDate, formatPrice } from "../utils/formatters";
 
 const defaultFilters = {
@@ -193,7 +194,20 @@ export default function QueryView() {
                     className="group border-b border-[var(--md-surface-container-low)] transition-colors hover:bg-[var(--md-secondary-container)]/30"
                   >
                     <td className="px-4 py-4 text-[#1C1B1F]">{formatDate(item.stat_date)}</td>
-                    <td className="px-4 py-4 font-medium text-[#1C1B1F]">{item.product_name}</td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={resolveProductImage(item.product_name).src}
+                          alt={resolveProductImage(item.product_name).alt}
+                          className="h-12 w-12 rounded-2xl object-cover shadow-sm"
+                          loading="lazy"
+                        />
+                        <div>
+                          <p className="font-medium text-[#1C1B1F]">{item.product_name}</p>
+                          <p className="text-xs text-[#79747E]">{resolveProductImage(item.product_name).displayName}</p>
+                        </div>
+                      </div>
+                    </td>
                     <td className="px-4 py-4 text-[#49454F]">{item.category}</td>
                     <td className="px-4 py-4 text-[#49454F]">
                       {item.market_name}

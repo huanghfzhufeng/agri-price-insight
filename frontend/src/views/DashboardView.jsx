@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import MD3Badge from "../components/ui/MD3Badge";
 import MD3Button from "../components/ui/MD3Button";
 import MD3Card from "../components/ui/MD3Card";
+import { resolveProductImage } from "../data/productImageManifest";
 import { buildAreaPath, buildLinePath, getValueDomain } from "../utils/chart";
 
 const chartColors = ["#6750A4", "#386A20", "#B3261E"];
@@ -156,9 +157,17 @@ export default function DashboardView() {
                   key={`${item.name}-${item.market}`}
                   className="flex cursor-pointer items-center justify-between rounded-xl p-3 transition-colors hover:bg-[var(--md-surface-container-low)]/70"
                 >
-                  <div>
-                    <p className="font-medium text-[#1C1B1F]">{item.name}</p>
-                    <p className="text-xs text-[#49454F]">{item.market}</p>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={resolveProductImage(item.name).src}
+                      alt={resolveProductImage(item.name).alt}
+                      className="h-12 w-12 rounded-2xl object-cover shadow-sm"
+                      loading="lazy"
+                    />
+                    <div>
+                      <p className="font-medium text-[#1C1B1F]">{item.name}</p>
+                      <p className="text-xs text-[#49454F]">{item.market}</p>
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="font-medium">{item.price}</p>
