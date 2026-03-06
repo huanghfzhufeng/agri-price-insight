@@ -50,6 +50,20 @@ class PriceRecord(Base):
     market: Mapped["Market"] = relationship(back_populates="price_records")
 
 
+class RawPriceRecord(Base):
+    __tablename__ = "raw_price_record"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    source_url: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    source_type: Mapped[str] = mapped_column(String(64), index=True)
+    article_title: Mapped[str] = mapped_column(String(255))
+    article_date: Mapped[date | None] = mapped_column(Date, nullable=True, index=True)
+    status: Mapped[str] = mapped_column(String(32), default="success", index=True)
+    raw_content: Mapped[str] = mapped_column(Text)
+    raw_html: Mapped[str | None] = mapped_column(Text, nullable=True)
+    crawl_time: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), index=True)
+
+
 class AlertRecord(Base):
     __tablename__ = "alert_record"
 
@@ -64,6 +78,19 @@ class AlertRecord(Base):
 
     product: Mapped["Product"] = relationship(back_populates="alerts")
     market: Mapped["Market | None"] = relationship(back_populates="alerts")
+
+
+class TaskLog(Base):
+    __tablename__ = "task_log"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    task_name: Mapped[str] = mapped_column(String(128), index=True)
+    status: Mapped[str] = mapped_column(String(32), index=True)
+    message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    source: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    records_inserted: Mapped[int] = mapped_column(default=0)
+    started_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), index=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
 class ForecastResult(Base):

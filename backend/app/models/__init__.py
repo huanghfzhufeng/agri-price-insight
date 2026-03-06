@@ -1,3 +1,3 @@
-from app.models.entities import AlertRecord, ForecastResult, Market, PriceRecord, Product
+from app.models.entities import AlertRecord, ForecastResult, Market, PriceRecord, Product, RawPriceRecord, TaskLog
 
-__all__ = ["AlertRecord", "ForecastResult", "Market", "PriceRecord", "Product"]
+__all__ = ["AlertRecord", "ForecastResult", "Market", "PriceRecord", "Product", "RawPriceRecord", "TaskLog"]

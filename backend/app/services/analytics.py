@@ -5,10 +5,11 @@ from datetime import date, timedelta
 from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session
 
-from app.models.entities import AlertRecord, Market, PriceRecord, Product
+from app.models.entities import AlertRecord, Market, PriceRecord, Product, RawPriceRecord, TaskLog
 from app.schemas.alerts import AlertItem, ForecastPoint, ForecastResponse
 from app.schemas.dashboard import DashboardSummaryResponse, RankingItem, SummaryMetric, TrendPoint, TrendSeries
 from app.schemas.price import PriceListResponse, PriceRecordOut, SystemOptionsResponse
+from app.schemas.system import RawPriceRecordOut, TaskLogOut
 
 
 def _safe_change(current: float, previous: float | None) -> float:
@@ -22,6 +23,39 @@ def get_system_options(db: Session) -> SystemOptionsResponse:
     markets = db.scalars(select(Market.name).order_by(Market.region, Market.name)).all()
     categories = db.scalars(select(Product.category).distinct().order_by(Product.category)).all()
     return SystemOptionsResponse(products=products, markets=markets, categories=categories)
+
+
+def get_task_logs(db: Session, limit: int = 20) -> list[TaskLogOut]:
+    logs = db.scalars(select(TaskLog).order_by(TaskLog.started_at.desc()).limit(limit)).all()
+    return [
+        TaskLogOut(
+            id=log.id,
+            task_name=log.task_name,
+            status=log.status,
+            message=log.message,
+            source=log.source,
+            records_inserted=log.records_inserted,
+            started_at=log.started_at,
+            finished_at=log.finished_at,
+        )
+        for log in logs
+    ]
+
+
+def get_raw_price_records(db: Session, limit: int = 20) -> list[RawPriceRecordOut]:
+    records = db.scalars(select(RawPriceRecord).order_by(RawPriceRecord.crawl_time.desc()).limit(limit)).all()
+    return [
+        RawPriceRecordOut(
+            id=record.id,
+            source_url=record.source_url,
+            source_type=record.source_type,
+            article_title=record.article_title,
+            article_date=record.article_date,
+            status=record.status,
+            crawl_time=record.crawl_time,
+        )
+        for record in records
+    ]
 
 
 def get_dashboard_data(db: Session, days: int = 30) -> DashboardSummaryResponse:
