@@ -1,0 +1,16 @@
+.DS_Store
+.idea
+.vscode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+node_modules/
+dist/
+build/
+backend/pybs.db
+backend/.env
+frontend/.env
