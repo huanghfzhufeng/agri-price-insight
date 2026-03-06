@@ -203,6 +203,8 @@ npm run dev
 - 开发文档：[docs/development-guide.md](./docs/development-guide.md)
 - 测试文档：[docs/testing-guide.md](./docs/testing-guide.md)
 - TODO 清单：[TODO.md](./TODO.md)
+- 数据源白名单：[docs/data-source-whitelist.md](./docs/data-source-whitelist.md)
+- 图片资源方案：[docs/image-resource-plan.md](./docs/image-resource-plan.md)
 - 后端入口：[backend/app/main.py](./backend/app/main.py)
 - 前端入口：[frontend/src/App.jsx](./frontend/src/App.jsx)
 
