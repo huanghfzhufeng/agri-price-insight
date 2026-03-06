@@ -37,7 +37,24 @@
 
 ## 4. 推荐图片来源
 
-### 4.1 方案 A：Wikimedia Commons
+### 4.1 方案 A：Pexels
+
+许可说明：
+
+- [Pexels License](https://www.pexels.com/license/)
+
+说明：
+
+- 当前仓库的首批演示图片已经采用 Pexels 来源页对应图片
+- 图片已本地化到 `frontend/public/images/products/`
+- 每张图片都保留了来源页地址，生成了前端图片元数据清单
+
+推荐用途：
+
+- 用于当前开发版和演示版系统
+- 快速完成“真实图片 + 本地展示”的前端效果
+
+### 4.2 方案 B：Wikimedia Commons
 
 许可说明：
 
@@ -45,15 +62,10 @@
 
 说明：
 
-- Wikimedia Commons 仅接受允许再发布、允许演绎、允许商业使用的自由许可内容
-- 但具体使用时，仍然需要检查每一张图片页面上的单独授权信息和署名要求
+- Wikimedia Commons 仍然是后续可替换或补充的图片来源
+- 如果后面需要更贴近农产品学术展示的图片，可以继续从 Commons 精选替换
 
-推荐用途：
-
-- 用于系统演示版和毕业设计展示版图片库
-- 为重点农产品构建首批本地素材
-
-### 4.2 方案 B：自行拍摄或自有素材
+### 4.3 方案 C：自行拍摄或自有素材
 
 说明：
 
@@ -68,42 +80,54 @@
 
 ## 5. 推荐图片来源页
 
-以下链接是我建议优先审查和使用的图片来源页入口。
+以下链接是当前仓库实际已接入或保留候选的图片来源页入口。
 
-### 大蒜
+### 当前已接入图片来源页
 
+#### 大蒜
+
+- [Pexels garlic](https://www.pexels.com/photo/top-view-photo-of-garlic-bulbs-on-white-surface-4197447/)
+
+#### 大白菜
+
+- [Pexels cabbage](https://www.pexels.com/photo/close-up-photo-of-brussels-sprouts-2893635/)
+
+#### 鸡蛋
+
+- [Pexels eggs](https://www.pexels.com/photo/brown-eggs-162712/)
+
+#### 苹果
+
+- [Pexels apples](https://www.pexels.com/photo/red-apples-102104/)
+
+#### 西红柿
+
+- [Pexels tomatoes](https://www.pexels.com/photo/close-up-photography-of-red-tomatoes-1327838/)
+
+#### 大豆
+
+- [Pexels beans](https://www.pexels.com/photo/bowl-of-peanuts-on-brown-wooden-table-5966631/)
+
+#### 玉米
+
+- [Pexels corn](https://www.pexels.com/photo/selective-focus-photography-of-corns-547263/)
+
+#### 猪肉
+
+- [Pexels pork](https://www.pexels.com/photo/close-up-photograph-of-grilled-pork-1927377/)
+
+#### 生菜
+
+- [Pexels lettuce](https://www.pexels.com/photo/green-cabbage-3757269/)
+
+### Commons 候选来源页
 - [Category:Garlic](https://commons.wikimedia.org/wiki/Category:Garlic)
-- [Category:Garlics as food](https://commons.wikimedia.org/wiki/Category:Garlics_as_food)
-
-### 大白菜
-
 - [Category:Napa cabbage](https://commons.wikimedia.org/wiki/Category:Napa_cabbage)
-- [Category:Brassica rapa subsp. pekinensis](https://commons.wikimedia.org/wiki/Category:Brassica_rapa_subsp._pekinensis)
-
-### 鸡蛋
-
 - [Category:Eggs as food](https://commons.wikimedia.org/wiki/Category:Eggs_as_food)
-- [Category:Raw eggs](https://commons.wikimedia.org/wiki/Category:Raw_eggs)
-
-### 苹果
-
 - [Category:Apples](https://commons.wikimedia.org/wiki/Category:Apples)
-- [Category:1 apple](https://commons.wikimedia.org/wiki/Category:1_apple)
-
-### 西红柿
-
 - [Category:Tomatoes](https://commons.wikimedia.org/wiki/Category:Tomatoes)
-
-### 大豆
-
 - [Category:Soybeans](https://commons.wikimedia.org/wiki/Category:Soybeans)
-
-### 玉米
-
 - [Category:Maize](https://commons.wikimedia.org/wiki/Category:Maize)
-
-### 猪肉
-
 - [Category:Pork](https://commons.wikimedia.org/wiki/Category:Pork)
 
 ## 6. 图片存储方案
@@ -146,7 +170,7 @@ frontend/public/images/products/
 
 后续建议新增文件：
 
-- `frontend/src/data/product-image-manifest.js`
+- `frontend/src/data/productImageManifest.js`
 
 ## 8. 前端展示方案
 
@@ -214,7 +238,8 @@ frontend/public/images/products/
 
 - 价格数据继续使用官方源
 - 图片资源单独维护
-- 图片优先采用 Wikimedia Commons 或自有拍摄素材
+- 当前开发版图片已使用 Pexels 来源页对应图片并本地化
+- 后续可以替换为自有拍摄素材或精选 Commons 图片
 - 图片最终本地化，供前端稳定展示
 
 下一阶段可以直接开始：

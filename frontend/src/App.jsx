@@ -6,6 +6,7 @@ import AlertsView from "./views/AlertsView";
 import DashboardView from "./views/DashboardView";
 import PlaceholderView from "./views/PlaceholderView";
 import QueryView from "./views/QueryView";
+import SystemManagementView from "./views/SystemManagementView";
 
 const navItems = [
   { id: "dashboard", label: "系统概览", icon: LayoutDashboard },
@@ -35,12 +36,7 @@ export default function App() {
           />
         );
       case "settings":
-        return (
-          <PlaceholderView
-            title="系统管理模块"
-            description="这里建议继续补用户登录、数据源配置、定时采集任务、任务日志和报表导出，让系统从演示原型升级为可答辩的完整项目。"
-          />
-        );
+        return <SystemManagementView />;
       default:
         return null;
     }

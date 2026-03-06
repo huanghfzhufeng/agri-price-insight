@@ -39,6 +39,12 @@ export const api = {
   getSystemOptions() {
     return request("/system/options");
   },
+  getTaskLogs(limit = 20) {
+    return request(`/system/task-logs${buildQuery({ limit })}`);
+  },
+  getRawRecords(limit = 20) {
+    return request(`/system/raw-records${buildQuery({ limit })}`);
+  },
   getPrices(filters = {}) {
     return request(`/prices${buildQuery(filters)}`);
   },

@@ -277,6 +277,10 @@
 | T003 | 数据查询模块 | 查询接口 | `GET /api/v1/prices?limit=3` | 返回分页数据 | 已通过 | 通过 | 已本地验证 |
 | T004 | 预测预警模块 | 预测接口 | `GET /api/v1/alerts/forecast?product=大蒜&days=7` | 返回历史和预测结果 | 已通过 | 通过 | 已本地验证 |
 | T005 | 前端构建 | 前端生产构建 | `npm run build` | 构建成功 | 已通过 | 通过 | 已本地验证 |
+| T006 | 数据采集模块 | 日度采集脚本 | `python scripts/fetch_moa_daily.py --pages 3 --max-articles 12` | 写入原始记录和任务日志 | 已通过 | 通过 | 已本地验证 |
+| T007 | 系统管理模块 | 任务日志接口 | `GET /api/v1/system/task-logs` | 返回任务执行历史 | 已通过 | 通过 | 已本地验证 |
+| T008 | 系统管理模块 | 原始记录接口 | `GET /api/v1/system/raw-records` | 返回原始文章记录 | 已通过 | 通过 | 已本地验证 |
+| T009 | 图片资源模块 | 图片清单生成脚本 | `python backend/scripts/fetch_product_images.py` | 生成本地图像与图片清单 | 已通过 | 通过 | 已本地验证 |
 
 ## 12. 后续测试实施顺序
 
