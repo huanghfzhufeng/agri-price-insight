@@ -7,6 +7,7 @@ from app.api.router import api_router
 from app.core.config import get_settings
 from app.db.base import Base
 from app.db.session import SessionLocal, engine
+from app.services.scheduler import start_scheduler
 from app.services.seed import seed_demo_data
 
 settings = get_settings()
@@ -17,7 +18,12 @@ async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
     with SessionLocal() as db:
         seed_demo_data(db)
+    scheduler = None
+    if settings.scheduler_enabled:
+        scheduler = start_scheduler()
     yield
+    if scheduler is not None:
+        scheduler.shutdown(wait=False)
 
 
 app = FastAPI(

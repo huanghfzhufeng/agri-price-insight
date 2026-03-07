@@ -32,6 +32,8 @@ class ForecastResponse(BaseModel):
     model_name: str
     mape: float
     rmse: float
+    mae: float | None = None
     history: list[ForecastPoint]
     forecast: list[ForecastPoint]
     insight: str
+    available_models: list[dict] = []

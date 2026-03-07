@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, Float, ForeignKey, String, Text, UniqueConstraint, func
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, String, Text, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -17,6 +17,7 @@ class Product(Base):
     price_records: Mapped[list["PriceRecord"]] = relationship(back_populates="product")
     alerts: Mapped[list["AlertRecord"]] = relationship(back_populates="product")
     forecasts: Mapped[list["ForecastResult"]] = relationship(back_populates="product")
+    thresholds: Mapped[list["AlertThreshold"]] = relationship(back_populates="product")
 
 
 class Market(Base):
@@ -64,6 +65,63 @@ class RawPriceRecord(Base):
     crawl_time: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), index=True)
 
 
+class User(Base):
+    __tablename__ = "sys_user"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    username: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    display_name: Mapped[str] = mapped_column(String(64))
+    password_hash: Mapped[str] = mapped_column(String(255))
+    role: Mapped[str] = mapped_column(String(32), default="admin")
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    last_login_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    tokens: Mapped[list["AuthToken"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+
+
+class AuthToken(Base):
+    __tablename__ = "auth_token"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("sys_user.id"), index=True)
+    token: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    last_used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    user: Mapped["User"] = relationship(back_populates="tokens")
+
+
+class DataSourceConfig(Base):
+    __tablename__ = "data_source_config"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String(128), unique=True, index=True)
+    category: Mapped[str] = mapped_column(String(64), index=True)
+    base_url: Mapped[str] = mapped_column(String(255))
+    crawl_strategy: Mapped[str] = mapped_column(String(64), default="manual")
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_success_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class AlertThreshold(Base):
+    __tablename__ = "alert_threshold"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    scope_key: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    scope_label: Mapped[str] = mapped_column(String(64))
+    product_id: Mapped[int | None] = mapped_column(ForeignKey("product.id"), nullable=True, index=True)
+    warning_ratio: Mapped[float] = mapped_column(Float, default=5.0)
+    critical_ratio: Mapped[float] = mapped_column(Float, default=8.0)
+    std_multiplier: Mapped[float] = mapped_column(Float, default=2.0)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    product: Mapped["Product | None"] = relationship(back_populates="thresholds")
+
+
 class AlertRecord(Base):
     __tablename__ = "alert_record"
 
@@ -91,6 +149,20 @@ class TaskLog(Base):
     records_inserted: Mapped[int] = mapped_column(default=0)
     started_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), index=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class ReportAsset(Base):
+    __tablename__ = "report_asset"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    title: Mapped[str] = mapped_column(String(255))
+    report_month: Mapped[date | None] = mapped_column(Date, nullable=True, index=True)
+    source_url: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    local_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    source_type: Mapped[str] = mapped_column(String(64), index=True)
+    status: Mapped[str] = mapped_column(String(32), default="downloaded", index=True)
+    summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
 
 class ForecastResult(Base):

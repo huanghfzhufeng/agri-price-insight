@@ -19,6 +19,9 @@ class PriceRecordOut(BaseModel):
 
 
 class PriceListResponse(BaseModel):
+    page: int
+    page_size: int
+    pages: int
     total: int
     items: list[PriceRecordOut]
 
