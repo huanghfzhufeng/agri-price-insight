@@ -2,216 +2,256 @@
 
 > 基于 Python 的农产品价格数据分析、预测与可视化系统
 
-![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.14-3776AB?style=flat-square&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=flat-square&logo=fastapi&logoColor=white)
 ![React](https://img.shields.io/badge/React-Frontend-61DAFB?style=flat-square&logo=react&logoColor=0B172A)
-![Vite](https://img.shields.io/badge/Vite-Build-646CFF?style=flat-square&logo=vite&logoColor=white)
+![ECharts](https://img.shields.io/badge/ECharts-Visualization-AA344D?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Graduation%20Project-success?style=flat-square)
 
-这是一个面向毕业设计场景构建的全栈项目，围绕“农产品价格监测、分析、预测与可视化”这一主题，完成了前后端分层、数据库建模、示例数据入库、接口设计与交互式界面原型。
+这是一个面向毕业设计答辩场景构建的全栈系统，围绕“农产品价格监测、统计分析、趋势预测、异常预警与可视化展示”完成了从真实采集到前端呈现的完整闭环。
 
-适合作为毕业设计题目《基于 Python 的农产品价格数据分析、预测与可视化系统的设计与实现》的工程基础。
+当前版本已经不是纯原型，而是具备以下能力的完整工程：
 
-## 项目亮点
+- 真实数据采集
+- 数据清洗、标准化与去重
+- SQLite / MySQL 双模式
+- 登录鉴权
+- 查询分页与 CSV 导出
+- 统计分析与 ECharts 图表
+- 预测预警与模型评价指标
+- 数据源管理、阈值管理、月报归档、任务日志
 
-- 面向真实业务链路，而不是单纯的静态图表展示
-- 包含 `数据采集 -> 数据清洗 -> 数据存储 -> 统计分析 -> 趋势预测 -> 预警展示` 的系统闭环
-- 前端采用 Material You 风格设计，适合答辩演示
-- 后端提供可扩展 API，便于后续接入真实农产品数据源
-- 已预留“统计分析”和“系统管理”模块扩展空间
+## 1. 项目亮点
 
-## 功能模块
+- 使用农业农村部官方价格简报和月报作为主数据来源
+- 采用前后端分离架构，适合作为毕业设计“设计与实现”类项目
+- 将价格数据与图片资源分离管理，兼顾真实数据和前端展示效果
+- 已落地登录鉴权、统计分析、预测预警和系统管理，而不是单页演示
+- 提供开发文档、测试文档、部署文档和答辩材料提纲
 
-### 已完成
+## 2. 核心功能
 
-- 系统概览：展示核心指标、价格趋势与涨跌排行
-- 数据查询：支持按农产品、市场、日期进行价格检索
-- 预测预警：展示异常波动与未来价格趋势预测
-- 系统管理：展示采集任务日志与原始采集记录
-- 产品图片库：本地化产品图片并接入前端展示
-- 接口文档：自动生成 Swagger 文档
+### 2.1 系统概览
 
-### 规划中
+- 今日更新数据
+- 监控品类数量
+- 异常预警数量
+- 近 30 天趋势
+- 涨跌排行
 
-- 真实数据采集脚本
-- ECharts 统计分析页
-- 用户登录与角色管理
-- 定时任务调度与任务日志
-- Excel / PDF 报表导出
-- Prophet / XGBoost 模型对比实验
+### 2.2 数据查询
 
-## 技术栈
+- 按品类、市场、日期范围筛选
+- 分页查询
+- CSV 导出
+- 商品图片展示
+
+### 2.3 统计分析
+
+- 最新价格与 30 日均价
+- 同比与环比分析
+- 区域对比
+- 波动率排行
+- IQR 异常值识别
+
+### 2.4 预测预警
+
+- 7 / 30 / 90 天预测
+- 置信区间
+- 多模型评价指标
+- 当前预警列表
+
+### 2.5 系统管理
+
+- 采集任务日志
+- 原始文章记录
+- 数据源白名单
+- 预警阈值配置
+- 月报 PDF 归档
+
+## 3. 技术栈
 
 ### 后端
 
-- Python
 - FastAPI
 - SQLAlchemy 2.0
-- SQLite
-- Pydantic Settings
+- APScheduler
+- Alembic
+- SQLite / MySQL
 
 ### 前端
 
 - React
+- React Router
 - Vite
 - Tailwind CSS
-- Lucide React
+- ECharts
 
-### 数据分析方向
+### 分析与预测
 
-- pandas
-- numpy
-- Prophet
-- scikit-learn
+- Python 标准统计算法
+- 趋势基线模型
+- 移动平均模型
+- 线性回归模型
+- Prophet 预留兼容入口，当前环境不可用时自动回退
 
-当前仓库已完成前后端骨架与演示数据链路，分析算法部分保留为后续毕业设计深化重点。
-
-## 系统架构
+## 4. 系统架构
 
 ```mermaid
 flowchart LR
-    A["官方价格数据源"] --> B["数据采集与清洗"]
-    B --> C["SQLite / MySQL"]
-    C --> D["FastAPI 后端接口"]
-    D --> E["React 可视化前端"]
-    C --> F["统计分析模块"]
-    C --> G["预测预警模块"]
-    F --> D
-    G --> D
+    A["农业农村部日简报"] --> B["采集脚本"]
+    A2["农业农村部月报"] --> B2["月报归档脚本"]
+    B --> C["原始表 / 标准价格表"]
+    B2 --> D["月报资产表"]
+    C --> E["统计分析模块"]
+    C --> F["预测预警模块"]
+    C --> G["FastAPI 接口层"]
+    D --> G
+    E --> G
+    F --> G
+    G --> H["React + ECharts 前端"]
 ```
 
-## 项目结构
+## 5. 项目结构
 
 ```text
 agri-price-insight/
 ├── backend/
+│   ├── alembic/                   # 数据库迁移骨架
 │   ├── app/
-│   │   ├── api/            # 路由层
-│   │   ├── core/           # 配置
-│   │   ├── db/             # 数据库连接
-│   │   ├── models/         # ORM 模型
-│   │   ├── schemas/        # 返回模型
-│   │   └── services/       # 种子数据与分析逻辑
-│   ├── .env.example
-│   └── requirements.txt
+│   │   ├── api/                   # 路由与依赖
+│   │   ├── core/                  # 配置与安全
+│   │   ├── db/                    # 数据库连接
+│   │   ├── models/                # ORM 模型
+│   │   ├── schemas/               # Pydantic 模型
+│   │   └── services/              # 采集、分析、鉴权、种子数据
+│   ├── scripts/                   # 手动采集脚本
+│   └── tests/                     # pytest
+├── docs/                          # 开发、测试、部署、论文与答辩文档
 ├── frontend/
-│   ├── src/
-│   │   ├── api/            # 前端接口请求
-│   │   ├── components/     # UI 组件与布局组件
-│   │   ├── utils/          # 图表与格式化工具
-│   │   └── views/          # 页面视图
-│   └── .env.example
-├── project_plan.md         # 毕业设计实施方案
-└── README.md
+│   ├── public/images/products/    # 本地化产品图片
+│   └── src/
+│       ├── api/
+│       ├── components/
+│       ├── context/
+│       └── views/
+├── TODO.md
+└── project_plan.md
 ```
 
-## 本地运行
+## 6. 快速启动
 
-### 1. 启动后端
-
-建议使用 `Python 3.11` 虚拟环境运行，后续接入 `Prophet` 时会更稳定。
+### 6.1 后端
 
 ```bash
 cd backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
-启动后可访问：
-
-- Swagger 文档：[http://localhost:8000/docs](http://localhost:8000/docs)
-
-首次启动会自动：
+默认会自动：
 
 - 创建 `backend/pybs.db`
-- 初始化数据库表
-- 写入演示数据
+- 初始化基础表
+- 写入演示价格数据
+- 初始化管理员账号
+- 生成系统管理所需的配置数据
 
-### 2. 启动前端
+默认管理员账号：
+
+- 用户名：`admin`
+- 密码：`Admin@123456`
+
+### 6.2 前端
 
 ```bash
 cd frontend
 npm install
+cp .env.example .env
 npm run dev
 ```
 
-默认访问：
+访问地址：
 
-- 前端地址：[http://localhost:5173](http://localhost:5173)
+- 前端：[http://localhost:5173](http://localhost:5173)
+- 后端 Swagger：[http://localhost:8000/docs](http://localhost:8000/docs)
 
-开发环境下前端已代理 `/api` 到后端服务。
+## 7. 数据采集命令
 
-## API 示例
+### 日简报采集
 
-### 系统接口
+```bash
+backend/.venv/bin/python backend/scripts/fetch_moa_daily.py --pages 2 --max-articles 8
+```
 
-- `GET /api/v1/system/health`
-- `GET /api/v1/system/options`
+### 月报同步
 
-### 仪表盘接口
+```bash
+backend/.venv/bin/python backend/scripts/fetch_moa_monthly_report.py --limit 6
+```
 
+## 8. 自动化测试
+
+```bash
+backend/.venv/bin/pytest
+```
+
+当前已覆盖：
+
+- 登录与鉴权
+- 查询分页与导出
+- 统计分析接口
+- 预测接口
+- 系统管理接口
+- 采集解析函数
+
+## 9. 主要接口
+
+- `POST /api/v1/auth/login`
 - `GET /api/v1/dashboard`
-- `GET /api/v1/dashboard/rankings`
-
-### 数据查询接口
-
 - `GET /api/v1/prices`
-
-### 预测预警接口
-
+- `GET /api/v1/prices/export`
+- `GET /api/v1/analysis/overview`
+- `GET /api/v1/analysis/monthly`
+- `GET /api/v1/analysis/regions`
+- `GET /api/v1/analysis/volatility`
 - `GET /api/v1/alerts`
 - `GET /api/v1/alerts/forecast`
+- `GET /api/v1/system/task-logs`
+- `GET /api/v1/system/data-sources`
+- `GET /api/v1/system/report-assets`
 
-## 当前演示效果
+## 10. 相关文档
 
-当前版本已经具备毕业设计答辩所需的基础展示能力：
+- [项目实施方案](./project_plan.md)
+- [开发文档](./docs/development-guide.md)
+- [测试文档](./docs/testing-guide.md)
+- [数据库设计文档](./docs/database-design.md)
+- [接口设计文档](./docs/api-design.md)
+- [部署文档](./docs/deployment-guide.md)
+- [数据采集说明](./docs/data-ingestion-guide.md)
+- [系统使用说明](./docs/user-guide.md)
+- [毕业论文技术实现提纲](./docs/thesis-technical-outline.md)
+- [答辩演示脚本](./docs/defense-script.md)
+- [答辩 PPT 提纲](./docs/ppt-outline.md)
+- [截图素材清单](./docs/screenshot-shotlist.md)
+- [TODO 清单](./TODO.md)
 
-- 有完整前后端工程结构
-- 有数据库模型设计
-- 有可运行 API
-- 有联动式前端页面
-- 有示例趋势数据和预警数据
-- 有真实采集脚本和任务日志
-- 有本地化产品图片展示
+## 11. 毕业设计价值
 
-这意味着你现在展示的不是“几张效果图”，而是一个可以继续迭代的系统原型。
+这个项目适合作为优秀毕业设计的工程基础，因为它同时覆盖：
 
-## 后续开发建议
-
-1. 将 SQLite 替换为 MySQL，增强工程完整性
-2. 增加农业农村部价格数据采集脚本
-3. 引入 pandas 完成同比、环比、波动率分析
-4. 引入 Prophet 与机器学习模型进行预测对比
-5. 在前端接入 ECharts，完成更完整的数据分析页
-6. 增加登录、任务调度、日志管理与报表导出
-
-## 对毕业设计的意义
-
-这个仓库适合作为毕业设计工程部分的核心支撑，因为它同时覆盖了：
-
-- 系统需求分析
-- 总体架构设计
+- 需求分析
+- 架构设计
 - 数据库设计
-- 前后端实现
-- 接口设计
-- 预测与预警思路
-- 后续测试与部署扩展
+- 数据采集
+- 数据分析
+- 趋势预测
+- 前端可视化
+- 系统测试
+- 文档交付
 
-你可以在此基础上继续完成论文、答辩 PPT、系统演示和最终源码提交。
-
-## 相关文件
-
-- 实施方案：[project_plan.md](./project_plan.md)
-- 开发文档：[docs/development-guide.md](./docs/development-guide.md)
-- 测试文档：[docs/testing-guide.md](./docs/testing-guide.md)
-- TODO 清单：[TODO.md](./TODO.md)
-- 数据源白名单：[docs/data-source-whitelist.md](./docs/data-source-whitelist.md)
-- 图片资源方案：[docs/image-resource-plan.md](./docs/image-resource-plan.md)
-- 后端入口：[backend/app/main.py](./backend/app/main.py)
-- 前端入口：[frontend/src/App.jsx](./frontend/src/App.jsx)
-
-## License
-
-当前仓库默认仅用于课程设计 / 毕业设计展示与学习参考。
+如果继续补充更多官方品类、角色权限和更强预测模型，可以直接发展为更完整的生产型原型系统。
