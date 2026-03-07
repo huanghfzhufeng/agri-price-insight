@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, ArrowDownRight, ArrowUpRight, Download } from "lucide-react";
 
 import { api } from "../api/client";
+import ErrorState from "../components/common/ErrorState";
+import ImageWithFallback from "../components/common/ImageWithFallback";
 import MD3Badge from "../components/ui/MD3Badge";
 import MD3Button from "../components/ui/MD3Button";
 import MD3Card from "../components/ui/MD3Card";
@@ -45,6 +47,10 @@ export default function DashboardView() {
   const primarySeries = dashboard.trend_series[0]?.points ?? [];
   const domain = getValueDomain(dashboard.trend_series.map((series) => series.points));
 
+  async function handleExport() {
+    await api.downloadPrices({});
+  }
+
   return (
     <div className="page-enter relative space-y-8">
       <div className="pointer-events-none absolute right-0 top-0 -z-10 h-96 w-96 -translate-y-1/2 translate-x-1/4 rounded-full bg-[var(--md-primary)]/10 blur-3xl" />
@@ -55,10 +61,12 @@ export default function DashboardView() {
           <h1 className="mb-2 text-4xl font-normal tracking-tight text-[#1C1B1F]">系统概览</h1>
           <p className="text-[#49454F]">今日农产品价格监测与分析简报</p>
         </div>
-        <MD3Button icon={<Download size={18} />}>导出简报</MD3Button>
+        <MD3Button icon={<Download size={18} />} onClick={handleExport}>
+          导出价格数据
+        </MD3Button>
       </div>
 
-      {status.error ? <ErrorPanel message={status.error} /> : null}
+      {status.error ? <ErrorState title="概览加载失败" message={status.error} onRetry={() => window.location.reload()} /> : null}
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
         {(status.loading ? Array.from({ length: 4 }) : dashboard.summary).map((stat, index) => (
@@ -155,10 +163,10 @@ export default function DashboardView() {
               ) : (
                 <div
                   key={`${item.name}-${item.market}`}
-                  className="flex cursor-pointer items-center justify-between rounded-xl p-3 transition-colors hover:bg-[var(--md-surface-container-low)]/70"
+                    className="flex cursor-pointer items-center justify-between rounded-xl p-3 transition-colors hover:bg-[var(--md-surface-container-low)]/70"
                 >
                   <div className="flex items-center gap-3">
-                    <img
+                    <ImageWithFallback
                       src={resolveProductImage(item.name).src}
                       alt={resolveProductImage(item.name).alt}
                       className="h-12 w-12 rounded-2xl object-cover shadow-sm"
@@ -183,13 +191,5 @@ export default function DashboardView() {
         </MD3Card>
       </div>
     </div>
-  );
-}
-
-function ErrorPanel({ message }) {
-  return (
-    <MD3Card className="border border-[var(--md-error)]/20 bg-[var(--md-error-container)]" hoverable={false}>
-      <p className="text-sm text-[var(--md-error)]">数据加载失败：{message}</p>
-    </MD3Card>
   );
 }

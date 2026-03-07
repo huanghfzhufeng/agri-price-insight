@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import { Filter, Search } from "lucide-react";
+import { Download, Filter, Search } from "lucide-react";
 
 import { api } from "../api/client";
+import EmptyState from "../components/common/EmptyState";
+import ErrorState from "../components/common/ErrorState";
+import ImageWithFallback from "../components/common/ImageWithFallback";
 import MD3Badge from "../components/ui/MD3Badge";
 import MD3Button from "../components/ui/MD3Button";
 import MD3Card from "../components/ui/MD3Card";
@@ -15,7 +18,8 @@ const defaultFilters = {
   category: "",
   start_date: "",
   end_date: "",
-  limit: 20,
+  page: 1,
+  page_size: 12,
 };
 
 export default function QueryView() {
@@ -61,7 +65,15 @@ export default function QueryView() {
   }
 
   function updateFilter(field, value) {
-    setFilters((current) => ({ ...current, [field]: value }));
+    setFilters((current) => ({ ...current, [field]: value, page: field === "page" ? value : 1 }));
+  }
+
+  async function handleExport() {
+    try {
+      await api.downloadPrices(filters);
+    } catch (error) {
+      setStatus({ loading: false, error: error.message });
+    }
   }
 
   return (
@@ -144,6 +156,9 @@ export default function QueryView() {
             >
               重置筛选
             </MD3Button>
+            <MD3Button variant="outlined" icon={<Download size={18} />} onClick={handleExport}>
+              导出 CSV
+            </MD3Button>
             <MD3Button icon={<Search size={18} />} onClick={() => runSearch()}>
               立即查询
             </MD3Button>
@@ -152,16 +167,16 @@ export default function QueryView() {
       </div>
 
       {status.error ? (
-        <MD3Card className="border border-[var(--md-error)]/20 bg-[var(--md-error-container)]" hoverable={false}>
-          <p className="text-sm text-[var(--md-error)]">查询失败：{status.error}</p>
-        </MD3Card>
+        <ErrorState title="查询失败" message={status.error} onRetry={() => runSearch()} />
       ) : null}
 
       <MD3Card>
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-medium text-[#1C1B1F]">价格明细</h2>
-            <p className="mt-1 text-sm text-[#49454F]">当前匹配到 {prices.total} 条记录</p>
+            <p className="mt-1 text-sm text-[#49454F]">
+              当前匹配到 {prices.total} 条记录，第 {prices.page || 1} / {prices.pages || 1} 页
+            </p>
           </div>
         </div>
 
@@ -196,7 +211,7 @@ export default function QueryView() {
                     <td className="px-4 py-4 text-[#1C1B1F]">{formatDate(item.stat_date)}</td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
-                        <img
+                        <ImageWithFallback
                           src={resolveProductImage(item.product_name).src}
                           alt={resolveProductImage(item.product_name).alt}
                           className="h-12 w-12 rounded-2xl object-cover shadow-sm"
@@ -229,12 +244,47 @@ export default function QueryView() {
               ) : (
                 <tr>
                   <td colSpan={7} className="px-4 py-10 text-center text-sm text-[#49454F]">
-                    暂无符合条件的数据
+                    <EmptyState title="暂无符合条件的数据" description="调整筛选条件后重新查询。" className="mx-auto max-w-xl" />
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
+        </div>
+
+        <div className="mt-6 flex flex-col gap-4 border-t border-[var(--md-surface-container-low)] pt-5 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm text-[#49454F]">每页显示 {filters.page_size} 条</p>
+          <div className="flex items-center gap-3">
+            <MD3Button
+              variant="outlined"
+              onClick={() => {
+                if ((prices.page || 1) <= 1) {
+                  return;
+                }
+                const nextFilters = { ...filters, page: (prices.page || 1) - 1 };
+                setFilters(nextFilters);
+                runSearch(nextFilters);
+              }}
+            >
+              上一页
+            </MD3Button>
+            <span className="text-sm text-[#49454F]">
+              {prices.page || 1} / {prices.pages || 1}
+            </span>
+            <MD3Button
+              variant="outlined"
+              onClick={() => {
+                if ((prices.page || 1) >= (prices.pages || 1)) {
+                  return;
+                }
+                const nextFilters = { ...filters, page: (prices.page || 1) + 1 };
+                setFilters(nextFilters);
+                runSearch(nextFilters);
+              }}
+            >
+              下一页
+            </MD3Button>
+          </div>
         </div>
       </MD3Card>
     </div>

@@ -1,15 +1,90 @@
 import { useEffect, useState } from "react";
+import ReactECharts from "echarts-for-react";
 import { Settings, TrendingUp } from "lucide-react";
 
 import { api } from "../api/client";
+import EmptyState from "../components/common/EmptyState";
+import ErrorState from "../components/common/ErrorState";
+import ImageWithFallback from "../components/common/ImageWithFallback";
 import MD3Badge from "../components/ui/MD3Badge";
 import MD3Button from "../components/ui/MD3Button";
 import MD3Card from "../components/ui/MD3Card";
 import { resolveProductImage } from "../data/productImageManifest";
-import { buildForecastBand, buildLinePath, getValueDomain, getYCoordinate } from "../utils/chart";
 import { timeAgo } from "../utils/formatters";
 
 const forecastDaysOptions = [7, 30, 90];
+
+function buildForecastOption(forecast) {
+  const labels = [...forecast.history.map((item) => item.date), ...forecast.forecast.map((item) => item.date)];
+  const actualSeries = [...forecast.history.map((item) => item.value), ...forecast.forecast.map(() => null)];
+  const lowerSeries = [...forecast.history.map(() => null), ...forecast.forecast.map((item) => item.lower_bound)];
+  const bandSeries = [...forecast.history.map(() => null), ...forecast.forecast.map((item) => (item.upper_bound ?? item.value) - (item.lower_bound ?? item.value))];
+  const forecastSeries = [
+    ...forecast.history.map(() => null),
+    ...forecast.forecast.map((item) => item.value),
+  ];
+  const maxThreshold = forecast.forecast.reduce((result, item) => Math.max(result, item.upper_bound ?? item.value), 0);
+
+  return {
+    tooltip: { trigger: "axis" },
+    legend: { top: 0, textStyle: { color: "#49454F" } },
+    grid: { left: 30, right: 20, top: 44, bottom: 30, containLabel: true },
+    xAxis: {
+      type: "category",
+      boundaryGap: false,
+      data: labels,
+      axisLabel: { color: "#79747E", hideOverlap: true },
+      axisLine: { lineStyle: { color: "#D6CEDA" } },
+    },
+    yAxis: {
+      type: "value",
+      axisLabel: { color: "#79747E" },
+      splitLine: { lineStyle: { color: "rgba(121,116,126,0.12)" } },
+    },
+    series: [
+      {
+        name: "置信区间下轨",
+        type: "line",
+        stack: "band",
+        symbol: "none",
+        lineStyle: { opacity: 0 },
+        areaStyle: { opacity: 0 },
+        data: lowerSeries,
+      },
+      {
+        name: "置信区间",
+        type: "line",
+        stack: "band",
+        symbol: "none",
+        lineStyle: { opacity: 0 },
+        areaStyle: { color: "rgba(103,80,164,0.18)" },
+        data: bandSeries,
+      },
+      {
+        name: "实际价格",
+        type: "line",
+        symbol: "none",
+        smooth: true,
+        data: actualSeries,
+        lineStyle: { width: 3.5, color: "#6750A4" },
+      },
+      {
+        name: "预测价格",
+        type: "line",
+        symbol: "none",
+        smooth: true,
+        data: forecastSeries,
+        lineStyle: { width: 3, type: "dashed", color: "#386A20" },
+        markLine: {
+          symbol: "none",
+          data: [{ yAxis: Number(maxThreshold.toFixed(2)), name: "预警线" }],
+          lineStyle: { color: "#B3261E", type: "dashed" },
+          label: { color: "#B3261E" },
+        },
+      },
+    ],
+  };
+}
 
 export default function AlertsView() {
   const [days, setDays] = useState(30);
@@ -51,14 +126,7 @@ export default function AlertsView() {
     };
   }, [days]);
 
-  const mergedSeries = [...forecast.history, ...forecast.forecast];
-  const domain = getValueDomain([mergedSeries]);
   const forecastImage = resolveProductImage(forecast.product);
-  const thresholdLine =
-    mergedSeries.length > 0
-      ? Math.max(...mergedSeries.map((point) => point.upper_bound ?? point.value)) - 0.1
-      : 0;
-  const thresholdY = thresholdLine ? getYCoordinate(thresholdLine, domain) : 0;
 
   return (
     <div className="page-enter relative space-y-8">
@@ -74,11 +142,7 @@ export default function AlertsView() {
         </MD3Button>
       </div>
 
-      {status.error ? (
-        <MD3Card className="border border-[var(--md-error)]/20 bg-[var(--md-error-container)]" hoverable={false}>
-          <p className="text-sm text-[var(--md-error)]">预警模块加载失败：{status.error}</p>
-        </MD3Card>
-      ) : null}
+      {status.error ? <ErrorState title="预测预警加载失败" message={status.error} onRetry={() => setDays((current) => current)} /> : null}
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <div className="space-y-4 xl:col-span-1">
@@ -96,7 +160,7 @@ export default function AlertsView() {
               >
                 <div className="mb-2 flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <img
+                    <ImageWithFallback
                       src={resolveProductImage(alert.product).src}
                       alt={resolveProductImage(alert.product).alt}
                       className="h-12 w-12 rounded-2xl object-cover shadow-sm"
@@ -124,7 +188,7 @@ export default function AlertsView() {
         <MD3Card className="flex flex-col xl:col-span-2">
           <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-4">
-              <img
+              <ImageWithFallback
                 src={forecastImage.src}
                 alt={forecastImage.alt}
                 className="h-16 w-16 rounded-[20px] object-cover shadow-sm"
@@ -135,7 +199,8 @@ export default function AlertsView() {
                   {forecast.product}价格 {days} 天预测模型
                 </h2>
                 <p className="mt-1 text-sm text-[#49454F]">
-                  算法模型: {forecast.model_name || "趋势预测基线模型"} (MAPE: {forecast.mape}%, RMSE: {forecast.rmse})
+                  算法模型: {forecast.model_name || "趋势预测基线模型"} (MAPE: {forecast.mape}%, RMSE: {forecast.rmse}, MAE:{" "}
+                  {forecast.mae ?? 0})
                 </p>
               </div>
             </div>
@@ -161,54 +226,11 @@ export default function AlertsView() {
           <div className="chart-panel relative flex-1 rounded-2xl border border-[var(--md-surface-container-low)] bg-white/50 p-6">
             {status.loading ? (
               <div className="mt-8 h-[320px] animate-pulse rounded-2xl bg-[var(--md-surface-container-low)]/70" />
+            ) : !forecast.forecast.length ? (
+              <EmptyState title="暂无预测结果" description="当前数据量不足，暂时无法生成未来走势。" className="mt-8 h-[320px]" />
             ) : (
               <>
-                <div className="absolute right-4 top-4 flex flex-wrap gap-4 text-xs text-[#49454F]">
-                  <div className="flex items-center gap-1">
-                    <div className="h-3 w-3 rounded-full bg-[var(--md-primary)]" />
-                    实际价格
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="h-3 w-3 rounded-full border-2 border-dashed border-[var(--md-primary)]" />
-                    预测中值
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="h-3 w-3 rounded-sm bg-[var(--md-primary-container)]" />
-                    置信区间
-                  </div>
-                </div>
-                <svg className="mt-8 h-[320px] w-full" viewBox="0 0 600 280" preserveAspectRatio="none">
-                  <path d={buildForecastBand(forecast.history, forecast.forecast, { domain })} fill="#EADDFF" opacity="0.6" />
-                  <path d={buildLinePath(forecast.history, { domain })} fill="none" stroke="#6750A4" strokeWidth="3.5" />
-                  <path
-                    d={buildLinePath([...forecast.history.slice(-1), ...forecast.forecast], { domain })}
-                    fill="none"
-                    stroke="#6750A4"
-                    strokeWidth="3"
-                    strokeDasharray="6 6"
-                  />
-                  {thresholdLine ? (
-                    <>
-                      <line
-                        x1="0"
-                        y1={thresholdY}
-                        x2="600"
-                        y2={thresholdY}
-                        stroke="#B3261E"
-                        strokeWidth="1"
-                        strokeDasharray="4 4"
-                        opacity="0.7"
-                      />
-                      <text x="12" y={Math.max(thresholdY - 6, 12)} fill="#B3261E" fontSize="12">
-                        预警线 {thresholdLine.toFixed(2)}
-                      </text>
-                    </>
-                  ) : null}
-                  <line x1="315" y1="0" x2="315" y2="280" stroke="#79747E" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
-                  <text x="282" y="268" fill="#79747E" fontSize="12">
-                    今日
-                  </text>
-                </svg>
+                <ReactECharts option={buildForecastOption(forecast)} style={{ height: 360, marginTop: 20 }} />
               </>
             )}
           </div>
@@ -220,6 +242,17 @@ export default function AlertsView() {
             <div>
               <p className="font-medium text-[#1C1B1F]">AI 结论与建议</p>
               <p className="text-sm text-[#49454F]">{forecast.insight || "预测结果加载中..."}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {(forecast.available_models || []).map((item) => (
+                  <MD3Badge
+                    key={item.key || item.model_name}
+                    color={item.available === false ? "neutral" : item.model_name === forecast.model_name ? "primary" : "success"}
+                  >
+                    {item.model_name}
+                    {item.available === false ? " 不可用" : item.mape !== null && item.mape !== undefined ? ` · MAPE ${item.mape}%` : ""}
+                  </MD3Badge>
+                ))}
+              </div>
               {forecastImage.sourcePage ? (
                 <a
                   href={forecastImage.sourcePage}
@@ -234,6 +267,7 @@ export default function AlertsView() {
           </div>
         </MD3Card>
       </div>
+
     </div>
   );
 }
